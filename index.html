@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Online Saya - Katalog Produk</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo"><i class="fa-solid fa-bag-shopping"></i> TokoKu</a>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Cari barang..." onkeyup="filterProducts()">
+                <button><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span id="cartCount">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner Hero -->
+    <section class="hero">
+        <div class="container">
+            <h2>Selamat Datang di TokoKu!</h2>
+            <p>Dapatkan produk terbaik dengan harga terjangkau. Pesan mudah langsung via WhatsApp.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container">
+        <h3 class="section-title">Katalog Produk</h3>
+        <div class="product-grid" id="productGrid">
+            
+            <!-- Produk 1 -->
+            <div class="product-card" data-name="sepatu sneakers casual">
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" alt="Sepatu Sneakers">
+                <div class="product-info">
+                    <span class="category">Fashion</span>
+                    <h4>Sepatu Sneakers Red Line</h4>
+                    <p class="price">Rp 250.000</p>
+                    <button class="btn-add" onclick="addToCart('Sepatu Sneakers Red Line', 250000)">
+                        <i class="fa-solid fa-cart-plus"></i> + Keranjang
+                    </button>
+                </div>
+            </div>
+
+            <!-- Produk 2 -->
+            <div class="product-card" data-name="tas ransel laptop backpack">
+                <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500" alt="Tas Ransel">
+                <div class="product-info">
+                    <span class="category">Aksesoris</span>
+                    <h4>Tas Ransel Modern Grey</h4>
+                    <p class="price">Rp 180.000</p>
+                    <button class="btn-add" onclick="addToCart('Tas Ransel Modern Grey', 180000)">
+                        <i class="fa-solid fa-cart-plus"></i> + Keranjang
+                    </button>
+                </div>
+            </div>
+
+            <!-- Produk 3 -->
+            <div class="product-card" data-name="jam tangan pria analog">
+                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" alt="Jam Tangan">
+                <div class="product-info">
+                    <span class="category">Jam Tangan</span>
+                    <h4>Jam Tangan Classic Minimalis</h4>
+                    <p class="price">Rp 320.000</p>
+                    <button class="btn-add" onclick="addToCart('Jam Tangan Classic Minimalis', 320000)">
+                        <i class="fa-solid fa-cart-plus"></i> + Keranjang
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Sidebar Keranjang Belanja Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-header">
+            <h4><i class="fa-solid fa-cart-shopping"></i> Keranjang Belanja</h4>
+            <span class="close-cart" onclick="toggleCart()">&times;</span>
+        </div>
+        <div class="cart-body" id="cartItems">
+            <p class="empty-msg">Keranjang belanja Anda masih kosong.</p>
+        </div>
+        <div class="cart-footer">
+            <div class="total-price">
+                <span>Total:</span>
+                <strong id="cartTotal">Rp 0</strong>
+            </div>
+            <button class="btn-checkout" onclick="checkoutWA()">
+                <i class="fa-brands fa-whatsapp"></i> Checkout via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Overlay Background -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <footer>
+        <p>&copy; 2026 TokoKu. Hosted on GitHub Pages.</p>
+    </footer>
+
+    <script>
+        let cart = [];
+        const noWA = "6281234567890"; // GANTI DENGAN NOMOR WHATSAPP ANDA (Awal 62)
+
+        function addToCart(name, price) {
+            const existingIndex = cart.findIndex(item => item.name === name);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += 1;
+            } else {
+                cart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+            alert(`${name} telah ditambahkan ke keranjang!`);
+        }
+
+        function updateCartUI() {
+            const cartItemsEl = document.getElementById('cartItems');
+            const cartCountEl = document.getElementById('cartCount');
+            const cartTotalEl = document.getElementById('cartTotal');
+
+            let totalQty = 0;
+            let totalPrice = 0;
+
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = '<p class="empty-msg">Keranjang belanja Anda masih kosong.</p>';
+            } else {
+                cartItemsEl.innerHTML = '';
+                cart.forEach((item, index) => {
+                    totalQty += item.qty;
+                    totalPrice += item.price * item.qty;
+
+                    cartItemsEl.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <h5>${item.name}</h5>
+                                <small>Rp ${item.price.toLocaleString('id-ID')} x ${item.qty}</small>
+                            </div>
+                            <div class="item-actions">
+                                <strong>Rp ${(item.price * item.qty).toLocaleString('id-ID')}</strong>
+                                <button class="btn-remove" onclick="removeFromCart(${index})">&times;</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            cartCountEl.innerText = totalQty;
+            cartTotalEl.innerText = 'Rp ' + totalPrice.toLocaleString('id-ID');
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            document.getElementById('cartModal').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const products = document.querySelectorAll('.product-card');
+
+            products.forEach(product => {
+                const name = product.getAttribute('data-name');
+                if (name.includes(query)) {
+                    product.style.display = 'block';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        }
+
+        function checkoutWA() {
+            if (cart.length === 0) {
+                alert('Keranjang belanja Anda kosong!');
+                return;
+            }
+
+            let message = "Halo, saya mau memesan barang berikut:\n\n";
+            let grandTotal = 0;
+
+            cart.forEach((item, i) => {
+                let subtotal = item.price * item.qty;
+                grandTotal += subtotal;
+                message += `${i + 1}. *${item.name}* (${item.qty}x) = Rp ${subtotal.toLocaleString('id-ID')}\n`;
+            });
+
+            message += `\n*Total Pembayaran:* Rp ${grandTotal.toLocaleString('id-ID')}`;
+            message += "\n\nMohon informasi langkah pembayarannya. Terima kasih!";
+
+            const encodedMessage = encodeURIComponent(message);
+            const waUrl = `https://wa.me/${noWA}?text=${encodedMessage}`;
+
+            window.open(waUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
